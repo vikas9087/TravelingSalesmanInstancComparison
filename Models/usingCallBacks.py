@@ -1,8 +1,8 @@
-from secFormulation import SecModel
+from Models.secFormulation import SecModel
+from Models.secFormulation import buildGraph
 import gurobipy as gp
 from gurobipy import GRB
-import city as city
-import networkx as nx
+import Models.city as city
 import time as time
 
 
@@ -42,52 +42,25 @@ class CallBackModel(SecModel):
     Inherit from the CreateModel class. Add additional functionalities
     """
 
-    def __init__(self, env: gp.Env, cities: city.City.cities, distances: dict, startSoltution: list,
-                 usingLazyConstraint: bool = False, giveInitialSolution: bool = False):
-        super().__init__(env, cities, distances, startSoltution, giveInitialSolution)
+    def __init__(self, env: gp.Env, cities: city.City.cities, distances: dict, startSolution: list,
+                 usingLazyConstraint: bool = False, give_initial_solution: bool = False):
+        super().__init__(env, cities, distances, startSolution, give_initial_solution)
         if usingLazyConstraint:
             self.environment.setParam('LazyConstraints', 1)
         self.buildModel()
 
-    # def buildModel(self):
-    #     model_name = 'SEC_Cities-' + str(len(self.cities))
-    #     tsp = gp.Model(env=self.environment, name=model_name)
-    #     cityFromTo = tsp.addVars(self.indexes, vtype=GRB.BINARY, name='cityFromTo')
-    #     self.cityFromTo = cityFromTo
-    #     # add constraints:
-    #     for cityA in self.cities:
-    #         tsp.addConstr(gp.quicksum(
-    #             cityFromTo[(cityA, cityB)] for cityB in self.cities if (cityA, cityB) in self.indexes) == 1)
-    #         tsp.addConstr(gp.quicksum(
-    #             cityFromTo[(cityB, cityA)] for cityB in self.cities if (cityA, cityB) in self.indexes) == 1)
-    #
-    #     tsp.setObjective(gp.quicksum(cityFromTo[key] * self.distances[key] for key in self.indexes), GRB.MINIMIZE)
-    #
-    #     self.tsp = tsp
-    #
-    # def __giveInitialSolution(self):
-    #     for i in self.initialSoltution:
-    #         start = i
-    #         if i+1 < len(self.initialSoltution):
-    #             end = i+1
-    #         else:
-    #             end = self.initialSoltution[0]
-    #         self.cityFromTo[(i,i+1)].start = 1
-
     def solve(self):
-        print('Solution Approach: Gurobi Callbacks')
         try:
             self.tsp._vars = self.cityFromTo
             self.tsp._number_cities = len(self.cities)
             self.tsp.update()
             start_time = time.time()
             self.tsp.optimize(callBackSubTourElimination)
+            solution = self.tsp.getAttr('x', self.cityFromTo)
         except gp.GurobiError as e:
             print(f'Error code: {e.errno} & string is: {str(e)}')
         except AttributeError:
             print('Encountered an attribute error')
         self.time_elapsed = time.time() - start_time
-        self.total_distance = self.tsp.objVal
-        solution = self.tsp.getAttr('x', self.cityFromTo)
+        self.optimal_gap = self.tsp.MIPGap*100
         self.tsp.dispose()
-        self.environment.dispose()

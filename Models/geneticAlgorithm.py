@@ -1,9 +1,10 @@
 import random as rn
-from city import createCity
+from Models.city import createCity
 from geopy.distance import great_circle
 import matplotlib.pyplot as plt
 import numpy as np
 import math as math
+
 
 rn.seed(0)
 
@@ -161,7 +162,6 @@ def __getCityIndexes(cities: dict, result: list):
 
 def solveGeneticAlgorithm(eliteSize: int, mutationRate: float, cities: dict, popSize: int, generations: int):
     population = __initialPopulation(popSize, cities)
-    print(f"Initial Distance : {1 / __rankFitness(population)['fitness'][0]}")
     best_route = None
     best_value = math.inf
     values = []
@@ -173,9 +173,5 @@ def solveGeneticAlgorithm(eliteSize: int, mutationRate: float, cities: dict, pop
         if current_value < best_value:
             best_route = population[__rankFitness(population)['fitness_ranks'][0]]
             best_value = current_value
-    plt.plot(list(range(generations)), values)
-    plt.ylabel('Total Distance')
-    plt.xlabel('Generations')
-    plt.show()
-    print(f"Final Distance : {best_value}")
     best_route_index = __getCityIndexes(cities, best_route)
+    return best_route_index
