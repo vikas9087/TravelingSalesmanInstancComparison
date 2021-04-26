@@ -10,4 +10,15 @@ I am always eager to learn and explore. I am recently learning more about [metah
 
 
 ## Work In Progress
-Currently, I have build the classes to build these models. One model where utilizing MTZ formulation is yet to code. Then compare the the compuation time and objective value for different number of cities.
+__Current Status:__ I have built the models, set up the model execution. Following image shows the comparison for SEC and MTZ models for 10 instances with a maximum cities of 25. Further, I will need to perform the experiment considering the CallBacks.
+![Experiment 1](https://user-images.githubusercontent.com/43048552/116162667-45378780-a6c4-11eb-92c8-57c320f82002.png)
+
+## How To Execute
+* _Models Folder_
+  * `city.py`: Randomly generates the cities of given size and then calculates the distance between those cities.
+  * `secFormulation.py`: This is the main class which builds the model and has methods to add SEC constraints on the fly using different methods.
+  * `mtzFormulation.py`: Inherits from the `secFormulation.py` and adds the MTZ constraints with an option of initial starting solution.
+  * `usingCallBacks.py`: Inherits from the `secFormulation.py` and adds the [Gurobi's CallBack](https://www.gurobi.com/documentation/9.1/remoteservices/cb_s.html) features.
+  * `geneticAlgorithm.py`: A metaheuritic to build the initial solution which is then used in `mtzFormulation.py`
+  * `executeModels.py`: This module sets up the experimentation and visualization of results.
+* `main.py`: This uses the `executeModels.py` to execute the experiments.
