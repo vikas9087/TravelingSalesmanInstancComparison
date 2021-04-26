@@ -1,4 +1,5 @@
 from Models.secFormulation import SecModel
+from Models.secFormulation import buildGraph
 import gurobipy as gp
 from gurobipy import GRB
 import Models.city as city
@@ -39,5 +40,5 @@ class MtzFormulation(SecModel):
         self.time_elapsed = time.time() - start_time
         self.optimal_gap = self.tsp.MIPGap*100
         solution = self.tsp.getAttr('x', self.cityFromTo)
-        self.buildGraph(solution)
+        buildGraph(self.cities, solution,show_graph=False)
         self.tsp.dispose()

@@ -4,7 +4,8 @@ import Models.geneticAlgorithm as ga
 import Models.mtzFormulation as mtz
 import Models.secFormulation as sec
 import Models.usingCallBacks as cb
-import matplotlib.pyplot as plt
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 from tqdm import tqdm
 
 
@@ -15,7 +16,17 @@ def run(execute_sec : bool = False, execute_mtz : bool = False, execute_cb: bool
     generations = 100
     pop_size = 30
     number_cities = int(input('Please enter number of cities to be tested (At least 10): '))
-    results = {'Cities': [], 'SEC': [], 'MTZ': [], 'CB': [], 'SEC_Time': [], 'MTZ_Time': [], 'CB_Time': []}
+    results = {'Cities': [] }
+    if execute_sec:
+        results['SEC'] = []
+        results['SEC_Time'] = []
+    if execute_cb:
+        results['CB'] = []
+        results['CB_Time'] = []
+    if execute_mtz:
+        results['MTZ'] = []
+        results['MTZ_Time'] = []
+
 
     for i in tqdm(range(5, number_cities + 5, 5)):
         results['Cities'].append(i)
@@ -39,26 +50,41 @@ def run(execute_sec : bool = False, execute_mtz : bool = False, execute_cb: bool
             mtz_model = mtz.MtzFormulation(gurobi_env, cities, distance, startSolution=start_solution,
                                            give_initial_solution=True)
             mtz_model.solve()
-            results['MTZ'].append(mtz_model.total_distance)
+            results['MTZ'].append(mtz_model.optimal_gap)
             results['MTZ_Time'].append(mtz_model.time_elapsed)
-    __drawGraph(results)
+    __drawGraph(results, execute_sec=execute_sec, execute_mtz=execute_mtz, execute_cb= execute_cb)
 
 
-def __drawGraph(results):
-    fig, axes = plt.subplots(ncols=2, nrows=1, figsize=(12,8))
-    l1, = axes[0].plot(results['Cities'], results['SEC'], ls='-')
-    l2, =axes[0].plot(results['Cities'], results['CB'], ls='-.')
-    # l3, =axes[0].plot(results['Cities'], results['MTZ'], ls=':')
-    axes[0].set_title('Relative Optimal Gap Comparison')
-    axes[0].set_xlabel('Number of Cities')
-    axes[0].set_ylabel('Gap %')
+def __drawGraph(results, execute_sec : bool = False, execute_mtz : bool = False, execute_cb: bool = False):
+    fig = make_subplots(rows=1, cols=2, subplot_titles=('Optimality Gap Distribution', 'Solving Time Distribution'))
+    # Adding Gap Subplots
+    if execute_sec:
+        fig.add_trace(go.Box(y=results['SEC'], name='SEC', legendgroup='SEC', marker_color='red'),
+                      row=1, col=1)
+    if execute_cb:
+        fig.add_trace(go.Box(y=results['CB'], name='CB', legendgroup='CB', marker_color='lightseagreen'),
+                      row=1, col=1)
+    if execute_mtz:
+        fig.add_trace(go.Box(y=results['MTZ'], name='MTZ', legendgroup='MTZ', marker_color='chocolate'),
+                      row=1, col=1)
 
-    axes[1].plot(results['Cities'], results['SEC_Time'], ls='-')
-    axes[1].plot(results['Cities'], results['CB_Time'], ls='-.')
-    # axes[1].plot(results['Cities'], results['MTZ_Time'], ls=':')
-    axes[1].set_title('Solving Time Comparison')
-    axes[1].set_xlabel('Number of Cities')
-    axes[1].set_ylabel('Time (seconds)')
-    axes[0].legend((l1, l2), ('SEC', 'CB'), loc='best', shadow=True,fancybox=True)
-    fig.tight_layout()
+
+    # Adding Time Subplots
+    if execute_sec:
+        fig.add_trace(go.Box(y=results['SEC_Time'], name='SEC', showlegend=False, legendgroup='SEC', marker_color='red'),
+                      row=1, col=2)
+    if execute_cb:
+        fig.add_trace(go.Box(y=results['CB_Time'], name='CB', showlegend=False, legendgroup='CB', marker_color='lightseagreen'),
+                      row=1, col=2)
+    if execute_mtz:
+        fig.add_trace(go.Box(y=results['MTZ_Time'], name='MTZ', showlegend=False, legendgroup='MTZ', marker_color='chocolate'),
+            row=1, col=2)
+
+    # Updating Labels
+    fig.update_yaxes(title_text="Gap %", row=1, col=1)
+    fig.update_yaxes(title_text="Time (seconds)", row=1, col=2)
+
+    nr_cities = len(results['Cities'])
+    max_cities = max(results['Cities'])
+    fig.update_layout(title_text=f"Model Performance Comparison, Number of Instances {nr_cities}, Max Number of Cities {max_cities}", height=700)
     fig.show()
