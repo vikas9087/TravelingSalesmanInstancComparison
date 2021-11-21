@@ -9,18 +9,18 @@ import math as math
 rn.seed(0)
 
 
-def __createRoute(cities: list[createCity]):
+def __createRoute(cities):
     route = rn.sample(cities, len(cities))
     return route
 
 
-def __initialPopulation(popSize: int, cities: dict) -> list[__createRoute]:
+def __initialPopulation(popSize: int, cities: dict):
     city_list = list(cities.values())
     population = [__createRoute(cities=city_list) for i in range(popSize)]
     return population
 
 
-def __routeDistanceFitness(route: __createRoute) -> (float, float):
+def __routeDistanceFitness(route):
     distance = 0
     for i in range(len(route)):
         start_city = route[i]
@@ -37,7 +37,7 @@ def __routeDistanceFitness(route: __createRoute) -> (float, float):
         raise Exception('Route Distance can not be 0')
 
 
-def __rankFitness(population: list[__createRoute]):
+def __rankFitness(population):
     """
     Function to get the index of routes sorted in descending order
     :param population: list of routes
@@ -67,7 +67,7 @@ def __selection(fitnessMatrix: __rankFitness, eliteSize: int):
     return selection
 
 
-def __crossover(parentA: __createRoute, parentB: __createRoute) -> __createRoute:
+def __crossover(parentA, parentB) -> __createRoute:
     child = []
     childPA = []
     childPB = []
@@ -100,7 +100,7 @@ def __crossoverPopulation(matingPool, eliteSize: int):
     return children
 
 
-def __mutate(child: __createRoute, mutationRate: float):
+def __mutate(child, mutationRate: float):
     for swapped in range(len(child)):
         if rn.random() < mutationRate:
             swapWith = int(rn.random() * len(child))
@@ -114,7 +114,7 @@ def __mutate(child: __createRoute, mutationRate: float):
     return child
 
 
-def __mutatePopulation(population: list[__createRoute], mutationRate: float):
+def __mutatePopulation(population, mutationRate: float):
     if mutationRate > 1 or mutationRate < 0:
         raise Exception('Mutation rate should between 0 and 1')
 
@@ -126,7 +126,7 @@ def __mutatePopulation(population: list[__createRoute], mutationRate: float):
     return mutated_population
 
 
-def __addNewRoutes(matingPool: list[__createRoute], popSize: int, cities):
+def __addNewRoutes(matingPool, popSize: int, cities):
     if len(matingPool) == popSize:
         return matingPool
     else:
@@ -140,7 +140,7 @@ def __addNewRoutes(matingPool: list[__createRoute], popSize: int, cities):
     return matingPool
 
 
-def __nextGeneration(currentPopulation: list[__createRoute], eliteSize: int, mutationRate: float,
+def __nextGeneration(currentPopulation, eliteSize: int, mutationRate: float,
                      cities, popSize: int):
     fitness_matrix = __rankFitness(currentPopulation)
     selected_routes = __selection(fitness_matrix, eliteSize)
