@@ -1,6 +1,11 @@
 # Traveling Salesman
 [Traveling Salesman(TSP)](https://en.wikipedia.org/wiki/Travelling_salesman_problem) is a standard problem and have seen a huge progress over the years. This is an [NP Hard](https://en.wikipedia.org/wiki/NP-hardness). Various algorithms have been used for both exact methods and heuristics to solve the TSP.
 
+## How to run
+1. python envrionment: python3.7
+2. `pip install -r requirements.txt`
+3. `python main.py`
+
 ## Objective
 I am always eager to learn and explore. I am recently learning more about [metaheuristics](https://en.wikipedia.org/wiki/Metaheuristic), better programming, using solvers. The objectives of my this project are:
 
